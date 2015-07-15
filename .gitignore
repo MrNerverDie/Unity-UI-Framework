@@ -1,0 +1,48 @@
+# =============== #
+# Unity generated #
+# =============== #
+Temp/
+Obj/
+UnityGenerated/
+Library/
+Build/
+ 
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+ExportedObj/
+*.svd
+*.userprefs
+*.csproj
+*.pidb
+*.suo
+*.sln
+*.user
+*.unityproj
+*.booproj
+ 
+# ============ #
+# OS generated #
+# ============ #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+#Icon?
+ehthumbs.db
+Thumbs.db
+AssetBundles/
+Resources_bak/
+
+# ============ #
+# Misc         #
+# ============ #
+*.apk
+Tools/Obfuscation/**/*.dll
+Tools/Obfuscation/**/*.log
+Assets/FullInspector2_Generated/fiPersistentEditorStorage.prefab
+Assets/FullInspector2_Generated/fiPersistentEditorStorage.prefab.meta
+Assets/FullInspector2_Generated/fiBackupStorage.prefab
+Assets/FullInspector2_Generated/fiBackupStorage.prefab.meta
+Library/
