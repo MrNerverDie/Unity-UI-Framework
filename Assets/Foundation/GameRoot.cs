@@ -16,6 +16,7 @@ namespace MoleMole
 
         public void Start()
         {
+            Singleton<UIManager>.Create();
             Singleton<ContextManager>.Create();
         }
 

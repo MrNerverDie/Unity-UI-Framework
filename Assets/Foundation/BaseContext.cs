@@ -17,17 +17,9 @@ namespace MoleMole
 
         public UIType ViewType { get; private set; }
 
-        public GameObject View { get; private set; }
-
         public BaseContext(UIType viewType)
         {
             ViewType = viewType;
-        }
-
-        public void SetupUI<T>() where T : BaseContext
-        {
-            View = Singleton<UIManager>.Instance.GetSingleUI(ViewType);
-            View.Init<T>(this);
         }
 	}
 }

@@ -12,13 +12,17 @@ using System.Collections.Generic;
 
 namespace MoleMole
 {
-	public abstract class BaseView<T> : MonoBehaviour where T : BaseContext
+	public abstract class BaseView : MonoBehaviour
     {
-        public T Context { get; private set; }
 
-        public virtual void Init(T context)
+        public virtual void OnEnter(BaseContext context)
         {
-            Context = context;
+
+        }
+
+        public virtual void OnExit(BaseContext context)
+        {
+
         }
 	}
 }

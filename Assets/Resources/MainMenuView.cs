@@ -20,13 +20,16 @@ namespace MoleMole
         }
     }
 
-    public class MainMenuView : BaseView<MainMenuContext>
+    public class MainMenuView : BaseView
     {
-
-        public override void Init(MainMenuContext context)
+        public override void OnEnter(BaseContext context)
         {
-            base.Init(context);
+
         }
 
+        public override void OnExit(BaseContext context)
+        {
+
+        }
 	}
 }
