@@ -30,7 +30,6 @@ namespace MoleMole
 
         public override string ToString()
         {
-            Vector3 v;
             return string.Format("path : {0} name : {1}", Path, Name);
         }
 

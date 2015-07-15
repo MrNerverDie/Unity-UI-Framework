@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 /*
  *	
- *  Maintain State For UI Stack
+ *  
  *
  *	by Xuanyi
  *
@@ -12,11 +12,8 @@ using System.Collections.Generic;
 
 namespace MoleMole
 {
-    public class StateManager
+	public class UITools 
     {
-        private StateManager()
-        {
 
-        }
-    }
+	}
 }

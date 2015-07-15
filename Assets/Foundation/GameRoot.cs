@@ -16,7 +16,7 @@ namespace MoleMole
 
         public void Start()
         {
-            Singleton<StateManager>.Create();
+            Singleton<ContextManager>.Create();
         }
 
 	}
