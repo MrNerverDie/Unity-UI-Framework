@@ -31,5 +31,10 @@ namespace MoleMole
         {
 
         }
+
+        public void OKCallBack()
+        {
+            Singleton<ContextManager>.Instance.Push(new OptionMenuContext());
+        }
 	}
 }

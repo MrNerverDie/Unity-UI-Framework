@@ -22,10 +22,10 @@ namespace MoleMole
 
         public string Name { get; private set; }
 
-        public UIType(string path, string name)
+        public UIType(string path)
         {
             Path = path;
-            Name = path.Substring(path.LastIndexOf('/'));
+            Name = path.Substring(path.LastIndexOf('/') + 1);
         }
 
         public override string ToString()
@@ -33,6 +33,7 @@ namespace MoleMole
             return string.Format("path : {0} name : {1}", Path, Name);
         }
 
-        public static readonly UIType MainMenu = new UIType("UIMainMenu", "UIMainMenu");
-	}
+        public static readonly UIType MainMenu = new UIType("View/MainMenuView");
+        public static readonly UIType OptionMenu = new UIType("View/OptionMenuView");
+    }
 }

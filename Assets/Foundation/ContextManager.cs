@@ -18,7 +18,7 @@ namespace MoleMole
 
         private ContextManager()
         {
-
+            Push(new MainMenuContext());
         }
 
         public void Push(BaseContext nextContext)
@@ -41,8 +41,11 @@ namespace MoleMole
             if (_contextStack.Count != 0)
             {
                 BaseContext curContext = _contextStack.Peek();
+                _contextStack.Pop();
+
                 BaseView curView = Singleton<UIManager>.Instance.GetSingleUI(curContext.ViewType).GetComponent<BaseView>();
                 curView.OnExit(curContext);
+                Singleton<UIManager>.Instance.DestroySingleUI(curContext.ViewType);
             }
 
             if (_contextStack.Count != 0)
