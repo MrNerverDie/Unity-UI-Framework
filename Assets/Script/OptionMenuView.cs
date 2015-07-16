@@ -14,24 +14,27 @@ namespace MoleMole
 
     public class OptionMenuView : BaseView
     {
+
+        public Animator _animator;
+
         public override void OnEnter(BaseContext context)
         {
-
+            _animator.SetTrigger("OnEnter");
         }
 
         public override void OnExit(BaseContext context)
         {
-            Singleton<UIManager>.Instance.DestroySingleUI(context.ViewType);
+            _animator.SetTrigger("OnExit");
         }
 
         public virtual void OnPause(BaseContext context)
         {
-
+            _animator.SetTrigger("OnExit");
         }
 
         public virtual void OnResume(BaseContext context)
         {
-
+            _animator.SetTrigger("OnEnter");
         }
 
 		public void BackCallBack()

@@ -21,6 +21,10 @@ namespace MoleMole
         private UIManager()
         {
             _canvas = GameObject.Find("Canvas").transform;
+            foreach (Transform item in _canvas)
+            {
+                GameObject.Destroy(item.gameObject);
+            }
         }
 
         public GameObject GetSingleUI(UIType uiType)

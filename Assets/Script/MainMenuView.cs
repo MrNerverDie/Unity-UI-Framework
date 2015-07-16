@@ -22,9 +22,11 @@ namespace MoleMole
 
     public class MainMenuView : BaseView
     {
+        public Animator _animator;
+
         public override void OnEnter(BaseContext context)
         {
-
+            _animator.SetTrigger("OnEnter");
         }
 
         public override void OnExit(BaseContext context)
@@ -34,12 +36,12 @@ namespace MoleMole
 
         public override void OnPause(BaseContext context)
         {
-            Singleton<UIManager>.Instance.DestroySingleUI(context.ViewType);
+            _animator.SetTrigger("OnExit");
         }
 
         public override void OnResume(BaseContext context)
         {
-
+            _animator.SetTrigger("OnEnter");
         }
 
         public void OKCallBack()
