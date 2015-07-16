@@ -24,5 +24,15 @@ namespace MoleMole
         {
 
         }
+
+        public virtual void OnPause(BaseContext context)
+        {
+
+        }
+
+        public virtual void OnResume(BaseContext context)
+        {
+
+        }
 	}
 }

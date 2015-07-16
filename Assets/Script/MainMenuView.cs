@@ -32,6 +32,16 @@ namespace MoleMole
 
         }
 
+        public override void OnPause(BaseContext context)
+        {
+            Singleton<UIManager>.Instance.DestroySingleUI(context.ViewType);
+        }
+
+        public override void OnResume(BaseContext context)
+        {
+
+        }
+
         public void OKCallBack()
         {
             Singleton<ContextManager>.Instance.Push(new OptionMenuContext());

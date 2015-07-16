@@ -28,7 +28,7 @@ namespace MoleMole
             {
                 BaseContext curContext = _contextStack.Peek();
                 BaseView curView = Singleton<UIManager>.Instance.GetSingleUI(curContext.ViewType).GetComponent<BaseView>();
-                curView.OnExit(curContext);
+                curView.OnPause(curContext);
             }
 
             _contextStack.Push(nextContext);
@@ -45,14 +45,13 @@ namespace MoleMole
 
                 BaseView curView = Singleton<UIManager>.Instance.GetSingleUI(curContext.ViewType).GetComponent<BaseView>();
                 curView.OnExit(curContext);
-                Singleton<UIManager>.Instance.DestroySingleUI(curContext.ViewType);
             }
 
             if (_contextStack.Count != 0)
             {
                 BaseContext lastContext = _contextStack.Peek();
                 BaseView curView = Singleton<UIManager>.Instance.GetSingleUI(lastContext.ViewType).GetComponent<BaseView>();
-                curView.OnEnter(lastContext);
+                curView.OnResume(lastContext);
             }
         }
 
