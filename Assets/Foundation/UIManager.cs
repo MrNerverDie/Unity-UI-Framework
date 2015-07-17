@@ -29,12 +29,12 @@ namespace MoleMole
 
         public GameObject GetSingleUI(UIType uiType)
         {
-            if (_UIDict.ContainsKey(uiType) == false)
+            if (_UIDict.ContainsKey(uiType) == false || _UIDict[uiType] == null)
             {
                 GameObject go = GameObject.Instantiate(Resources.Load<GameObject>(uiType.Path)) as GameObject;
                 go.transform.SetParent(_canvas, false);
                 go.name = uiType.Name;
-                _UIDict.Add(uiType, go);
+                _UIDict.AddOrReplace(uiType, go);
                 return go;
             }
             return _UIDict[uiType];
@@ -44,6 +44,12 @@ namespace MoleMole
         {
             if (!_UIDict.ContainsKey(uiType))
             {
+                return;
+            }
+
+            if (_UIDict[uiType] == null)
+            {
+                _UIDict.Remove(uiType);
                 return;
             }
 

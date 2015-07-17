@@ -27,19 +27,24 @@ namespace MoleMole
             _animator.SetTrigger("OnExit");
         }
 
-        public virtual void OnPause(BaseContext context)
+        public override void OnPause(BaseContext context)
         {
-            _animator.SetTrigger("OnExit");
+            _animator.SetTrigger("OnPause");
         }
 
-        public virtual void OnResume(BaseContext context)
+        public override void OnResume(BaseContext context)
         {
-            _animator.SetTrigger("OnEnter");
+            _animator.SetTrigger("OnResume");
         }
 
 		public void BackCallBack()
         {
             Singleton<ContextManager>.Instance.Pop();
+        }
+
+        public void NextCallBack()
+        {
+            Singleton<ContextManager>.Instance.Push(new NextMenuContext());
         }
     }
 }

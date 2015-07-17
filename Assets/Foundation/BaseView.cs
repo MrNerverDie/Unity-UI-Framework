@@ -34,5 +34,10 @@ namespace MoleMole
         {
 
         }
+
+        public void DestroySelf()
+        {
+            Destroy(gameObject);
+        }
 	}
 }

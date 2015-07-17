@@ -12,15 +12,16 @@ using System.Collections.Generic;
 
 namespace MoleMole
 {
-    public class MainMenuContext : BaseContext
+    public class HighScoreContext : BaseContext
     {
-        public MainMenuContext() : base(UIType.MainMenu)
+        public HighScoreContext()
+            : base(UIType.HighScore)
         {
 
         }
     }
 
-    public class MainMenuView : BaseView
+    public class HighScoreView : BaseView
     {
         public Animator _animator;
 
@@ -44,14 +45,9 @@ namespace MoleMole
             _animator.SetTrigger("OnEnter");
         }
 
-        public void OKCallBack()
+        public void BackCallBack()
         {
-            Singleton<ContextManager>.Instance.Push(new OptionMenuContext());
+            Singleton<ContextManager>.Instance.Pop();
         }
-
-        public void HighScoreCallBack()
-        {
-            Singleton<ContextManager>.Instance.Push(new HighScoreContext());
-        }
-	}
+    }
 }
