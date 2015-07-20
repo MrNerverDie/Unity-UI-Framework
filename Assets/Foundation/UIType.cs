@@ -14,11 +14,7 @@ namespace MoleMole
 {
 	public class UIType {
 
-        private string _path;
-
         public string Path { get; private set; }
-
-        private string _name;
 
         public string Name { get; private set; }
 
