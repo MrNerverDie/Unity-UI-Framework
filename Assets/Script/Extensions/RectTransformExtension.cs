@@ -14,6 +14,6 @@ using System.Collections.Generic;
 namespace MoleMole
 {
 	public static class RectTransformExtension {
-
-	}
+	
+    }
 }

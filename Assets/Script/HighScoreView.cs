@@ -24,10 +24,12 @@ namespace MoleMole
     public class HighScoreView : BaseView
     {
         public Animator _animator;
+        public GridScroller _gridScroller;
 
         public override void OnEnter(BaseContext context)
         {
-            _animator.SetTrigger("OnEnter");
+            //_animator.SetTrigger("OnEnter");
+            _gridScroller.Init(OnChange, 20);
         }
 
         public override void OnExit(BaseContext context)
@@ -48,6 +50,11 @@ namespace MoleMole
         public void BackCallBack()
         {
             Singleton<ContextManager>.Instance.Pop();
+        }
+
+        public void OnChange(Transform trans, int index)
+        {
+            trans.GetComponent<HighScoreItem>().Init(index);
         }
     }
 }

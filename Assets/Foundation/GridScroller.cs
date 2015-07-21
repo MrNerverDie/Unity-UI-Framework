@@ -43,46 +43,44 @@ namespace MoleMole
         }
 
         // public fields //
-        public Movement _moveType = Movement.Vertical;
+        public Movement _moveType = Movement.Horizontal;
         public delegate void OnChange(Transform trans, int index);
 
         // private fields //
-        private Queue<Transform> _transQueue = new Queue<Transform>();
+        private LinkedList<Transform> _transList = new LinkedList<Transform>();
         private OnChange _onChange;
         private int _firstIndex = 0;
         private int _itemCount = 0;
         private int _transCount = 0;
         private int _col = 0;
         private int _row = 0;
-        private Rect _gridRect;
+        private Rect _scrollerRect;
+        private bool _hasChanged = false;
+
+        public Vector2 ItemSize
+        {
+            get
+            {
+                return _grid.spacing + _grid.cellSize;
+            }
+        }
 
         public void Init(OnChange onChange, int itemCount, GridScrollerPos pos = null)
         {
             Clear();
             InitScroller();
+            InitChildren(onChange, itemCount, pos);
             InitGrid();
 
-            // Init Children //
-            //_firstIndex = (pos == null) ? 0 : pos.FirstIndex;
-            //_onChange = onChange;
-            //for (int i = 0; i < _itemCount; i++)
-            //{
-            //    Transform item = _grid.transform.AddChild(_itemPrefab);
-            //    bool isActive = onChange(item, _firstIndex + i);
-            //    _itemQueue.Enqueue(item);
-            //    item.gameObject.SetActive(isActive);
-            //}
-            //_scroller.normalizedPosition = (pos == null) ? Vector2.zero : pos.NormalizedPosition;
-
-            //_transCount = 
-
+            _scroller.onValueChanged.AddListener(OnValueChanged);
+            _scroller.normalizedPosition = (pos == null) ? Vector2.one : pos.NormalizedPosition;
         }
 
         private void InitScroller()
         {
             // Init Scroller //
             _scroller = GetComponent<ScrollRect>();
-            _scroller.onValueChanged.AddListener(OnValueChanged);
+            _scrollerRect = _scroller.GetComponent<RectTransform>().rect;
 
             if (_moveType == Movement.Horizontal)
             {
@@ -98,42 +96,156 @@ namespace MoleMole
 
         private void InitGrid()
         {
-            _grid.startAxis = (_moveType == Movement.Horizontal) ? GridLayoutGroup.Axis.Vertical : GridLayoutGroup.Axis.Horizontal;
             _grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
             _grid.childAlignment = TextAnchor.UpperLeft;
-            _gridRect = _grid.GetComponent<RectTransform>().rect;
+            _grid.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 1f);
+            _grid.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 1f);
+            _grid.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 1f);
+            if (_moveType == Movement.Horizontal)
+            {
+                _grid.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, (_itemCount / _row + 1) * ItemSize.x);
+                _grid.startAxis = GridLayoutGroup.Axis.Vertical;
+            }
+            else
+            {
+                _grid.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, (_itemCount / _col + 1) * ItemSize.y);
+                _grid.startAxis = GridLayoutGroup.Axis.Horizontal;
+            }
         }
+
+        private void InitChildren(OnChange onChange, int itemCount, GridScrollerPos pos)
+        {
+            _firstIndex = (pos == null) ? 0 : pos.FirstIndex;
+            _onChange = onChange;
+            _itemCount = itemCount;
+            Vector2 itemSize = _grid.cellSize + _grid.spacing;
+            _col = (int)((_scrollerRect.width + _grid.spacing.x) / itemSize.x);
+            _row = (int)((_scrollerRect.height + _grid.spacing.y) / itemSize.y);
+            if (_moveType == Movement.Horizontal)
+            {
+                _col += 2;
+            }
+            else
+            {
+                _row += 2;
+            }
+            _transCount = _col * _row;
+
+            if (_transCount > _itemCount)
+            {
+                _transCount = _itemCount;
+            }
+
+            for (int i = 0; i < _transCount; i++)
+            {
+                Transform item = _grid.transform.AddChildFromPrefab(_itemPrefab, i.ToString());
+                _onChange(item, i);
+                _transList.AddLast(item);
+            }
+
+
+            for (int i = _transCount; i < _itemCount; i++)
+            {
+                GameObject go = new GameObject("EmptyItem", typeof(RectTransform));
+                go.transform.SetParent(_grid.transform, false);
+            }
+        }   
 
         private void Clear()
         {
-            _transQueue.Clear();
+            _transList.Clear();
             _grid.transform.DestroyChildren();
         }
 
         public void OnValueChanged(Vector2 normalizedPosition)
         {
-            for (int i = 0; i < _grid.transform.childCount; i++)
+        //    if (_transCount == _itemCount)
+        //    {
+        //        return;
+        //    }
+
+            Debug.Log(normalizedPosition.y);
+
+            Vector2 scrollerSize = _scroller.GetComponent<RectTransform>().rect.size;
+            Vector2 gridSize = _grid.GetComponent<RectTransform>().rect.size;
+
+            if (_moveType == Movement.Horizontal)
             {
-                Transform childTrans = _grid.transform.GetChild(i);
-                RectTransform childRect = childTrans.GetComponent<RectTransform>();
-                if (!IsItemInScroller(childRect))
+
+            }
+            else
+            {
+                if (Mathf.Abs(progress - normalizedPosition.y) > ((float)_col / _itemCount))
                 {
-                    _firstIndex++;
-                    
+                    if (progress > normalizedPosition.y && _firstIndex + _transCount < _itemCount)
+                    {
+                        for (int i = 0; i < _col; i++)
+                        {
+                            SwapSiblingIndex(_firstIndex, _firstIndex + _transCount);
+                            _onChange(_grid.transform.GetChild(_firstIndex + _transCount), _firstIndex + _transCount);
+                            _firstIndex++;
+                        };
+                    }
+                    else if (progress < normalizedPosition.y && _firstIndex > 0)
+                    {
+                        for (int i = 0; i < _col; i++)
+                        {
+                            SwapSiblingIndex(_firstIndex + _transCount - 1, _firstIndex - 1);
+                            _onChange(_grid.transform.GetChild(_firstIndex - 1), _firstIndex - 1);
+                            _firstIndex--;
+                        }
+                    }
                 }
             }
-
-
         }
 
-        private bool IsItemInScroller(RectTransform rectTrans)
+        private void ShiftToFirst()
         {
-            Rect itemRect = rectTrans.rect;
-            Rect gridRect = _grid.GetComponent<RectTransform>().rect;
-            Rect scrollerRect = new Rect(0, 0, _scroller.GetComponent<RectTransform>().sizeDelta.x, _scroller.GetComponent<RectTransform>().sizeDelta.y);
+            for (int i = 0; i < _col; i++)
+            {
+                _firstIndex--;
+                Transform childTrans = _transList.Last.Value;
+                childTrans.SetAsFirstSibling();
+                _transList.RemoveLast();
+                _transList.AddFirst(childTrans);
+                if (_firstIndex > 0)
+                {
+                    _firstIndex--;
+                    childTrans.gameObject.SetActive(true);
+                    _onChange(childTrans, _firstIndex);
+                }
+                else
+                {
+                    childTrans.gameObject.SetActive(false);
+                }
+            }
+        }
 
-            Rect itemRectInScroller = new Rect(itemRect.x + gridRect.x, itemRect.y + gridRect.y, itemRect.width, itemRect.height);
-            return scrollerRect.Overlaps(itemRectInScroller);
+        private void ShiftToLast()
+        {
+            for (int i = 0; i < _col && (_firstIndex + _transCount) < _itemCount ; i++)
+            {
+                Transform childTrans = _transList.First.Value;
+                childTrans.SetSiblingIndex(_firstIndex + _transCount);
+                _transList.RemoveFirst();
+                _transList.AddLast(childTrans);
+                _firstIndex++;
+                childTrans.gameObject.SetActive(true);
+                _onChange(childTrans, _firstIndex + _transCount - 1);
+            }
+        }
+
+        private void SwapSiblingIndex(int index1, int index2)
+        {
+            SwapSiblingIndex(_grid.transform.GetChild(index1), _grid.transform.GetChild(index2));
+        }
+
+        private void SwapSiblingIndex(Transform trans1, Transform trans2)
+        {
+            int trans1Index = trans1.GetSiblingIndex();
+            int trans2Index = trans2.GetSiblingIndex();
+            trans1.SetSiblingIndex(trans2Index);
+            trans2.SetSiblingIndex(trans1Index);
         }
 
         public GridScrollerPos GetCurPos()

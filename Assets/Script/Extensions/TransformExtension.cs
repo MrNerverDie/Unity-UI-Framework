@@ -33,7 +33,7 @@ namespace MoleMole
             }
         }
 
-        public static Transform AddChild(this Transform trans, Transform prefab, string name = null)
+        public static Transform AddChildFromPrefab(this Transform trans, Transform prefab, string name = null)
         {
             Transform childTrans = GameObject.Instantiate(prefab) as Transform;
             childTrans.SetParent(trans, false);
