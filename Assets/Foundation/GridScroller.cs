@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -47,7 +48,8 @@ namespace MoleMole
         public delegate void OnChange(Transform trans, int index);
 
         // private fields //
-        private LinkedList<Transform> _transList = new LinkedList<Transform>();
+        private HashSet<int> _transIndexSet = new HashSet<int>();
+        private HashSet<int> _showIndexSet = new HashSet<int>();
         private OnChange _onChange;
         private int _firstIndex = 0;
         private int _itemCount = 0;
@@ -103,12 +105,12 @@ namespace MoleMole
             _grid.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 1f);
             if (_moveType == Movement.Horizontal)
             {
-                _grid.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, (_itemCount / _row + 1) * ItemSize.x);
+                _grid.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, (_itemCount / _row) * ItemSize.x);
                 _grid.startAxis = GridLayoutGroup.Axis.Vertical;
             }
             else
             {
-                _grid.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, (_itemCount / _col + 1) * ItemSize.y);
+                _grid.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, (_itemCount / _col) * ItemSize.y);
                 _grid.startAxis = GridLayoutGroup.Axis.Horizontal;
             }
         }
@@ -140,7 +142,7 @@ namespace MoleMole
             {
                 Transform item = _grid.transform.AddChildFromPrefab(_itemPrefab, i.ToString());
                 _onChange(item, i);
-                _transList.AddLast(item);
+                _transIndexSet.Add(item.GetSiblingIndex());
             }
 
 
@@ -153,18 +155,18 @@ namespace MoleMole
 
         private void Clear()
         {
-            _transList.Clear();
+            _transIndexSet.Clear();
             _grid.transform.DestroyChildren();
         }
 
         public void OnValueChanged(Vector2 normalizedPosition)
         {
-        //    if (_transCount == _itemCount)
-        //    {
-        //        return;
-        //    }
+            if (_transCount == _itemCount)
+            {
+                return;
+            }
 
-            Debug.Log(normalizedPosition.y);
+            //Debug.Log(normalizedPosition.y);
 
             Vector2 scrollerSize = _scroller.GetComponent<RectTransform>().rect.size;
             Vector2 gridSize = _grid.GetComponent<RectTransform>().rect.size;
@@ -175,65 +177,98 @@ namespace MoleMole
             }
             else
             {
-                if (Mathf.Abs(progress - normalizedPosition.y) > ((float)_col / _itemCount))
+                float scrollLength = _grid.GetComponent<RectTransform>().anchoredPosition.y;
+                int scrollRow = (int)(scrollLength / ItemSize.y);
+                int startSiblingIndex = scrollRow * _col;
+
+                _showIndexSet.Clear();
+                for (int i = 0; i < _transCount; i++)
                 {
-                    if (progress > normalizedPosition.y && _firstIndex + _transCount < _itemCount)
+                    if ((i + startSiblingIndex) < _itemCount && i > 0)
                     {
-                        for (int i = 0; i < _col; i++)
-                        {
-                            SwapSiblingIndex(_firstIndex, _firstIndex + _transCount);
-                            _onChange(_grid.transform.GetChild(_firstIndex + _transCount), _firstIndex + _transCount);
-                            _firstIndex++;
-                        };
-                    }
-                    else if (progress < normalizedPosition.y && _firstIndex > 0)
-                    {
-                        for (int i = 0; i < _col; i++)
-                        {
-                            SwapSiblingIndex(_firstIndex + _transCount - 1, _firstIndex - 1);
-                            _onChange(_grid.transform.GetChild(_firstIndex - 1), _firstIndex - 1);
-                            _firstIndex--;
-                        }
+                        _showIndexSet.Add(i + startSiblingIndex);
                     }
                 }
-            }
-        }
 
-        private void ShiftToFirst()
-        {
-            for (int i = 0; i < _col; i++)
-            {
-                _firstIndex--;
-                Transform childTrans = _transList.Last.Value;
-                childTrans.SetAsFirstSibling();
-                _transList.RemoveLast();
-                _transList.AddFirst(childTrans);
-                if (_firstIndex > 0)
+                if (_showIndexSet.SetEquals(_transIndexSet))
                 {
-                    _firstIndex--;
-                    childTrans.gameObject.SetActive(true);
-                    _onChange(childTrans, _firstIndex);
+                    return;
                 }
                 else
                 {
-                    childTrans.gameObject.SetActive(false);
+                    IEnumerator<int> lhsIter = _showIndexSet.Except<int>(_transIndexSet).GetEnumerator();
+                    IEnumerator<int> rhsIter = _transIndexSet.Except<int>(_showIndexSet).GetEnumerator();
+
+                    while (lhsIter.MoveNext() && rhsIter.MoveNext())
+                    {
+                        SwapSiblingIndex(lhsIter.Current, rhsIter.Current);
+                        _onChange(_grid.transform.GetChild(lhsIter.Current), lhsIter.Current);
+                    }
+
+                    HashSet<int> tempSet = _transIndexSet;
+                    _transIndexSet = _showIndexSet;
+                    _showIndexSet = tempSet;
                 }
+
+                //if (Mathf.Abs(progress - normalizedPosition.y) > ((float)_col / _itemCount))
+                //{
+                //    if (progress > normalizedPosition.y && _firstIndex + _transCount < _itemCount)
+                //    {
+                //        for (int i = 0; i < _col; i++)
+                //        {
+                //            SwapSiblingIndex(_firstIndex, _firstIndex + _transCount);
+                //            _onChange(_grid.transform.GetChild(_firstIndex + _transCount), _firstIndex + _transCount);
+                //            _firstIndex++;
+                //        };
+                //    }
+                //    else if (progress < normalizedPosition.y && _firstIndex > 0)
+                //    {
+                //        for (int i = 0; i < _col; i++)
+                //        {
+                //            SwapSiblingIndex(_firstIndex + _transCount - 1, _firstIndex - 1);
+                //            _onChange(_grid.transform.GetChild(_firstIndex - 1), _firstIndex - 1);
+                //            _firstIndex--;
+                //        }
+                //    }
+                //}
             }
         }
 
-        private void ShiftToLast()
-        {
-            for (int i = 0; i < _col && (_firstIndex + _transCount) < _itemCount ; i++)
-            {
-                Transform childTrans = _transList.First.Value;
-                childTrans.SetSiblingIndex(_firstIndex + _transCount);
-                _transList.RemoveFirst();
-                _transList.AddLast(childTrans);
-                _firstIndex++;
-                childTrans.gameObject.SetActive(true);
-                _onChange(childTrans, _firstIndex + _transCount - 1);
-            }
-        }
+        //private void ShiftToFirst()
+        //{
+        //    for (int i = 0; i < _col; i++)
+        //    {
+        //        _firstIndex--;
+        //        Transform childTrans = _transList.Last.Value;
+        //        childTrans.SetAsFirstSibling();
+        //        _transList.RemoveLast();
+        //        _transList.AddFirst(childTrans);
+        //        if (_firstIndex > 0)
+        //        {
+        //            _firstIndex--;
+        //            childTrans.gameObject.SetActive(true);
+        //            _onChange(childTrans, _firstIndex);
+        //        }
+        //        else
+        //        {
+        //            childTrans.gameObject.SetActive(false);
+        //        }
+        //    }
+        //}
+
+        //private void ShiftToLast()
+        //{
+        //    for (int i = 0; i < _col && (_firstIndex + _transCount) < _itemCount ; i++)
+        //    {
+        //        Transform childTrans = _transList.First.Value;
+        //        childTrans.SetSiblingIndex(_firstIndex + _transCount);
+        //        _transList.RemoveFirst();
+        //        _transList.AddLast(childTrans);
+        //        _firstIndex++;
+        //        childTrans.gameObject.SetActive(true);
+        //        _onChange(childTrans, _firstIndex + _transCount - 1);
+        //    }
+        //}
 
         private void SwapSiblingIndex(int index1, int index2)
         {
