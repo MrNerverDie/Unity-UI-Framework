@@ -30,11 +30,13 @@ namespace MoleMole
 	public class GridScroller : MonoBehaviour {
 
         // public UI elements //
-        public Transform _itemPrefab;
+        [SerializeField]
+        private Transform _itemPrefab;
+        [SerializeField]
+        private RectTransform _grid;
 
         // private UI elements //
         private ScrollRect _scroller;
-        private RectTransform _grid;
 
         // define //
         public enum Movement
@@ -44,9 +46,9 @@ namespace MoleMole
         }
 
         // public fields //
-        public Movement _moveType = Movement.Horizontal;
-        public Vector2 _cellSize = Vector3.zero;
-        public Vector2 _spacing = Vector3.zero;
+        [SerializeField]
+        private Movement _moveType = Movement.Horizontal;
+        
         public delegate void OnChange(Transform trans, int index);
 
         // private fields //
@@ -61,6 +63,8 @@ namespace MoleMole
         private int _row = 0;
         private Rect _scrollerRect;
         private bool _hasChanged = false;
+        private Vector2 _cellSize = Vector3.zero;
+        private Vector2 _spacing = Vector3.zero;
 
         public Vector2 ItemSize
         {
@@ -77,9 +81,6 @@ namespace MoleMole
             InitGrid();
             InitChildren(onChange, itemCount, pos);
 
-            _scroller.onValueChanged.AddListener(OnValueChanged);
-            _scroller.normalizedPosition = (pos == null) ? Vector2.one : pos.NormalizedPosition;
-
             if (_moveType == Movement.Horizontal)
             {
                 _grid.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, (_itemCount / _row) * ItemSize.x);
@@ -88,6 +89,10 @@ namespace MoleMole
             {
                 _grid.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, (_itemCount / _col) * ItemSize.y);
             }
+            _scroller.onValueChanged.AddListener(OnValueChanged);
+            _scroller.normalizedPosition = (pos == null) ? new Vector2(0, 1) : pos.NormalizedPosition;
+
+
         }
 
         private void InitScroller()
@@ -110,13 +115,10 @@ namespace MoleMole
 
         private void InitGrid()
         {
-            _grid = new GameObject("Grid", typeof(RectTransform)).GetComponent<RectTransform>();
-            _scroller.content = _grid;
-            _grid.SetParent(_scroller.transform, false);
-            _grid.anchorMin = new Vector2(0f, 1f);
-            _grid.anchorMax = new Vector2(1f, 1f);
-            _grid.pivot = new Vector2(0.5f, 1f);
-            // set left right to zero //
+            _cellSize = _grid.GetComponent<GridLayoutGroup>().cellSize;
+            _spacing = _grid.GetComponent<GridLayoutGroup>().spacing;
+            _grid.GetComponent<GridLayoutGroup>().enabled = false;
+
         }
 
         private void InitChildren(OnChange onChange, int itemCount, GridScrollerPos pos)
@@ -183,107 +185,53 @@ namespace MoleMole
             Vector2 scrollerSize = _scroller.GetComponent<RectTransform>().rect.size;
             Vector2 gridSize = _grid.rect.size;
 
+            int startIndex = 0;
             if (_moveType == Movement.Horizontal)
             {
-
+                float scrollLength = - _grid.GetComponent<RectTransform>().anchoredPosition.x;
+                int scrollCol = (int)(scrollLength / ItemSize.x);
+                startIndex = scrollCol * _row;
             }
             else
             {
                 float scrollLength = _grid.GetComponent<RectTransform>().anchoredPosition.y;
                 int scrollRow = (int)(scrollLength / ItemSize.y);
-                int startSiblingIndex = scrollRow * _col;
+                startIndex = scrollRow * _col;
+            }
 
-                _showIndexSet.Clear();
-                for (int i = 0; i < _transCount; i++)
+            _showIndexSet.Clear();
+            for (int i = 0; i < _transCount; i++)
+            {
+                if ((i + startIndex) < _itemCount && (i + startIndex) >= 0)
                 {
-                    if ((i + startSiblingIndex) < _itemCount && i > 0)
-                    {
-                        _showIndexSet.Add(i + startSiblingIndex);
-                    }
+                    _showIndexSet.Add(i + startIndex);
+                }
+            }
+
+            if (_showIndexSet.SetEquals(_transIndexSet))
+            {
+                return;
+            }
+            else
+            {
+                IEnumerator<int> lhsIter = _showIndexSet.Except<int>(_transIndexSet).GetEnumerator();
+                IEnumerator<int> rhsIter = _transIndexSet.Except<int>(_showIndexSet).GetEnumerator();
+
+                while (lhsIter.MoveNext() && rhsIter.MoveNext())
+                {
+                    ChangeToIndex(rhsIter.Current, lhsIter.Current);
+                    _onChange(_transDict[lhsIter.Current], lhsIter.Current);
                 }
 
-                if (_showIndexSet.SetEquals(_transIndexSet))
-                {
-                    return;
-                }
-                else
-                {
-                    IEnumerator<int> lhsIter = _showIndexSet.Except<int>(_transIndexSet).GetEnumerator();
-                    IEnumerator<int> rhsIter = _transIndexSet.Except<int>(_showIndexSet).GetEnumerator();
-
-                    while (lhsIter.MoveNext() && rhsIter.MoveNext())
-                    {
-                        ChangeToIndex(rhsIter.Current, lhsIter.Current);
-                        _onChange(_transDict[lhsIter.Current], lhsIter.Current);
-                    }
-
-                    HashSet<int> tempSet = _transIndexSet;
-                    _transIndexSet = _showIndexSet;
-                    _showIndexSet = tempSet;
-                }
-
-                //if (Mathf.Abs(progress - normalizedPosition.y) > ((float)_col / _itemCount))
-                //{
-                //    if (progress > normalizedPosition.y && _firstIndex + _transCount < _itemCount)
-                //    {
-                //        for (int i = 0; i < _col; i++)
-                //        {
-                //            SwapSiblingIndex(_firstIndex, _firstIndex + _transCount);
-                //            _onChange(_grid.transform.GetChild(_firstIndex + _transCount), _firstIndex + _transCount);
-                //            _firstIndex++;
-                //        };
-                //    }
-                //    else if (progress < normalizedPosition.y && _firstIndex > 0)
-                //    {
-                //        for (int i = 0; i < _col; i++)
-                //        {
-                //            SwapSiblingIndex(_firstIndex + _transCount - 1, _firstIndex - 1);
-                //            _onChange(_grid.transform.GetChild(_firstIndex - 1), _firstIndex - 1);
-                //            _firstIndex--;
-                //        }
-                //    }
-                //}
+                HashSet<int> tempSet = _transIndexSet;
+                _transIndexSet = _showIndexSet;
+                _showIndexSet = tempSet;
             }
         }
 
-        //private void ShiftToFirst()
-        //{
-        //    for (int i = 0; i < _col; i++)
-        //    {
-        //        _firstIndex--;
-        //        Transform childTrans = _transList.Last.Value;
-        //        childTrans.SetAsFirstSibling();
-        //        _transList.RemoveLast();
-        //        _transList.AddFirst(childTrans);
-        //        if (_firstIndex > 0)
-        //        {
-        //            _firstIndex--;
-        //            childTrans.gameObject.SetActive(true);
-        //            _onChange(childTrans, _firstIndex);
-        //        }
-        //        else
-        //        {
-        //            childTrans.gameObject.SetActive(false);
-        //        }
-        //    }
-        //}
-
-        //private void ShiftToLast()
-        //{
-        //    for (int i = 0; i < _col && (_firstIndex + _transCount) < _itemCount ; i++)
-        //    {
-        //        Transform childTrans = _transList.First.Value;
-        //        childTrans.SetSiblingIndex(_firstIndex + _transCount);
-        //        _transList.RemoveFirst();
-        //        _transList.AddLast(childTrans);
-        //        _firstIndex++;
-        //        childTrans.gameObject.SetActive(true);
-        //        _onChange(childTrans, _firstIndex + _transCount - 1);
-        //    }
-        //}
-
         private void ChangeToIndex(int from, int to)
         {
+            //Debug.Log(from + " | " + to);
             RectTransform rectTrans = _transDict[from];
             rectTrans.anchoredPosition = IndexToPosition(to);
             _transDict.Remove(from);
@@ -294,7 +242,7 @@ namespace MoleMole
         {
             if (_moveType == Movement.Horizontal)
 	        {
-                return Vector2.zero;
+                return new Vector2(ItemSize.x * (index / _row), -ItemSize.y * (index % _row));
 	        }else
 	        {
                 return new Vector2(ItemSize.x * (index % _col), -ItemSize.y * (index / _col));
