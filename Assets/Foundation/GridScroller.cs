@@ -30,11 +30,11 @@ namespace MoleMole
 	public class GridScroller : MonoBehaviour {
 
         // public UI elements //
-        public GridLayoutGroup _grid;
         public Transform _itemPrefab;
 
         // private UI elements //
         private ScrollRect _scroller;
+        private RectTransform _grid;
 
         // define //
         public enum Movement
@@ -45,11 +45,14 @@ namespace MoleMole
 
         // public fields //
         public Movement _moveType = Movement.Horizontal;
+        public Vector2 _cellSize = Vector3.zero;
+        public Vector2 _spacing = Vector3.zero;
         public delegate void OnChange(Transform trans, int index);
 
         // private fields //
         private HashSet<int> _transIndexSet = new HashSet<int>();
         private HashSet<int> _showIndexSet = new HashSet<int>();
+        private Dictionary<int, RectTransform> _transDict = new Dictionary<int, RectTransform>();
         private OnChange _onChange;
         private int _firstIndex = 0;
         private int _itemCount = 0;
@@ -63,7 +66,7 @@ namespace MoleMole
         {
             get
             {
-                return _grid.spacing + _grid.cellSize;
+                return _spacing + _cellSize;
             }
         }
 
@@ -71,11 +74,20 @@ namespace MoleMole
         {
             Clear();
             InitScroller();
-            InitChildren(onChange, itemCount, pos);
             InitGrid();
+            InitChildren(onChange, itemCount, pos);
 
             _scroller.onValueChanged.AddListener(OnValueChanged);
             _scroller.normalizedPosition = (pos == null) ? Vector2.one : pos.NormalizedPosition;
+
+            if (_moveType == Movement.Horizontal)
+            {
+                _grid.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, (_itemCount / _row) * ItemSize.x);
+            }
+            else
+            {
+                _grid.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, (_itemCount / _col) * ItemSize.y);
+            }
         }
 
         private void InitScroller()
@@ -98,21 +110,13 @@ namespace MoleMole
 
         private void InitGrid()
         {
-            _grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
-            _grid.childAlignment = TextAnchor.UpperLeft;
-            _grid.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 1f);
-            _grid.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 1f);
-            _grid.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 1f);
-            if (_moveType == Movement.Horizontal)
-            {
-                _grid.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, (_itemCount / _row) * ItemSize.x);
-                _grid.startAxis = GridLayoutGroup.Axis.Vertical;
-            }
-            else
-            {
-                _grid.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, (_itemCount / _col) * ItemSize.y);
-                _grid.startAxis = GridLayoutGroup.Axis.Horizontal;
-            }
+            _grid = new GameObject("Grid", typeof(RectTransform)).GetComponent<RectTransform>();
+            _scroller.content = _grid;
+            _grid.SetParent(_scroller.transform, false);
+            _grid.anchorMin = new Vector2(0f, 1f);
+            _grid.anchorMax = new Vector2(1f, 1f);
+            _grid.pivot = new Vector2(0.5f, 1f);
+            // set left right to zero //
         }
 
         private void InitChildren(OnChange onChange, int itemCount, GridScrollerPos pos)
@@ -120,9 +124,8 @@ namespace MoleMole
             _firstIndex = (pos == null) ? 0 : pos.FirstIndex;
             _onChange = onChange;
             _itemCount = itemCount;
-            Vector2 itemSize = _grid.cellSize + _grid.spacing;
-            _col = (int)((_scrollerRect.width + _grid.spacing.x) / itemSize.x);
-            _row = (int)((_scrollerRect.height + _grid.spacing.y) / itemSize.y);
+            _col = (int)((_scrollerRect.width + _spacing.x) / ItemSize.x);
+            _row = (int)((_scrollerRect.height + _spacing.y) / ItemSize.y);
             if (_moveType == Movement.Horizontal)
             {
                 _col += 2;
@@ -141,22 +144,31 @@ namespace MoleMole
             for (int i = 0; i < _transCount; i++)
             {
                 Transform item = _grid.transform.AddChildFromPrefab(_itemPrefab, i.ToString());
+                InitChild(item.GetComponent<RectTransform>(), i);
                 _onChange(item, i);
-                _transIndexSet.Add(item.GetSiblingIndex());
+                _transIndexSet.Add(i);
+                _transDict.Add(i, item.GetComponent<RectTransform>());
             }
-
-
-            for (int i = _transCount; i < _itemCount; i++)
-            {
-                GameObject go = new GameObject("EmptyItem", typeof(RectTransform));
-                go.transform.SetParent(_grid.transform, false);
-            }
-        }   
+        }
+   
+        private void InitChild(RectTransform rectTrans, int index)
+        {
+            rectTrans.anchorMax = new Vector2(0, 1);
+            rectTrans.anchorMin = new Vector2(0, 1);
+            rectTrans.pivot = new Vector2(0, 1);
+            rectTrans.sizeDelta = _cellSize;
+            rectTrans.anchoredPosition = IndexToPosition(index);
+        }
 
         private void Clear()
         {
             _transIndexSet.Clear();
-            _grid.transform.DestroyChildren();
+            _transDict.Clear();
+            _showIndexSet.Clear();
+            if (_grid != null)
+            {
+                _grid.DestroyChildren();                
+            }
         }
 
         public void OnValueChanged(Vector2 normalizedPosition)
@@ -169,7 +181,7 @@ namespace MoleMole
             //Debug.Log(normalizedPosition.y);
 
             Vector2 scrollerSize = _scroller.GetComponent<RectTransform>().rect.size;
-            Vector2 gridSize = _grid.GetComponent<RectTransform>().rect.size;
+            Vector2 gridSize = _grid.rect.size;
 
             if (_moveType == Movement.Horizontal)
             {
@@ -201,8 +213,8 @@ namespace MoleMole
 
                     while (lhsIter.MoveNext() && rhsIter.MoveNext())
                     {
-                        SwapSiblingIndex(lhsIter.Current, rhsIter.Current);
-                        _onChange(_grid.transform.GetChild(lhsIter.Current), lhsIter.Current);
+                        ChangeToIndex(rhsIter.Current, lhsIter.Current);
+                        _onChange(_transDict[lhsIter.Current], lhsIter.Current);
                     }
 
                     HashSet<int> tempSet = _transIndexSet;
@@ -270,9 +282,23 @@ namespace MoleMole
         //    }
         //}
 
-        private void SwapSiblingIndex(int index1, int index2)
+        private void ChangeToIndex(int from, int to)
         {
-            SwapSiblingIndex(_grid.transform.GetChild(index1), _grid.transform.GetChild(index2));
+            RectTransform rectTrans = _transDict[from];
+            rectTrans.anchoredPosition = IndexToPosition(to);
+            _transDict.Remove(from);
+            _transDict.Add(to, rectTrans);
+        }
+
+        private Vector2 IndexToPosition(int index)
+        {
+            if (_moveType == Movement.Horizontal)
+	        {
+                return Vector2.zero;
+	        }else
+	        {
+                return new Vector2(ItemSize.x * (index % _col), -ItemSize.y * (index / _col));
+	        }
         }
 
         private void SwapSiblingIndex(Transform trans1, Transform trans2)
