@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -12,8 +13,9 @@ using System.Collections.Generic;
 
 namespace MoleMole
 {
-	public class UITools 
-    {
+	public class MyTouchInputMoudule :  TouchInputModule{
+
+	
 
 	}
 }

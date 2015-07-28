@@ -21,30 +21,29 @@ namespace MoleMole
         }
     }
 
-    public class HighScoreView : BaseView
+    public class HighScoreView : AnimateView
     {
-        public Animator _animator;
         public GridScroller _gridScroller;
 
         public override void OnEnter(BaseContext context)
         {
-            _animator.SetTrigger("OnEnter");
-            _gridScroller.Init(OnChange, 20, new Vector2(0.55f, 1f));
+            base.OnEnter(context);
+            _gridScroller.Init(OnChange, 20, new Vector2(0.12f, 1f));
         }
 
         public override void OnExit(BaseContext context)
         {
-            _animator.SetTrigger("OnExit");
+            base.OnExit(context);
         }
 
         public override void OnPause(BaseContext context)
         {
-            _animator.SetTrigger("OnExit");
+            base.OnPause(context);
         }
 
         public override void OnResume(BaseContext context)
         {
-            _animator.SetTrigger("OnEnter");
+            base.OnResume(context);
         }
 
         public void BackCallBack()

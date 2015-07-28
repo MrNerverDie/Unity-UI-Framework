@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -20,31 +21,35 @@ namespace MoleMole
         }
     }
 
-    public class MainMenuView : BaseView
+    public class MainMenuView : AnimateView
     {
-        public Animator _animator;
+
+        [SerializeField]
+        private Button _buttonHighScore;
+        [SerializeField]
+        private Button _buttonOption;
 
         public override void OnEnter(BaseContext context)
         {
-            _animator.SetTrigger("OnEnter");
+            base.OnEnter(context);
         }
 
         public override void OnExit(BaseContext context)
         {
-            _animator.SetTrigger("OnExit");
+            base.OnExit(context);
         }
 
         public override void OnPause(BaseContext context)
         {
-            _animator.SetTrigger("OnExit");
+            base.OnPause(context);
         }
 
         public override void OnResume(BaseContext context)
         {
-            _animator.SetTrigger("OnEnter");
+            base.OnResume(context);
         }
 
-        public void OKCallBack()
+        public void OptionCallBack()
         {
             Singleton<ContextManager>.Instance.Push(new OptionMenuContext());
         }
