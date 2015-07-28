@@ -18,7 +18,7 @@ namespace MoleMole
 
         private ContextManager()
         {
-            Push(new HighScoreContext());
+            Push(new MainMenuContext());
         }
 
         public void Push(BaseContext nextContext)

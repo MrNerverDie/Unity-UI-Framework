@@ -28,8 +28,8 @@ namespace MoleMole
 
         public override void OnEnter(BaseContext context)
         {
-            //_animator.SetTrigger("OnEnter");
-            _gridScroller.Init(OnChange, 100);
+            _animator.SetTrigger("OnEnter");
+            _gridScroller.Init(OnChange, 20, new Vector2(0.55f, 1f));
         }
 
         public override void OnExit(BaseContext context)
