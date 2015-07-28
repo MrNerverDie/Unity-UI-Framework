@@ -32,6 +32,18 @@ namespace MoleMole
         {
             Singleton<ContextManager>.Instance.Pop();
         }
+
+        public void ChangeLangCallBack()
+        {
+            if (Singleton<Localization>.Instance.Language == Localization.CHINESE)
+            {
+                Singleton<Localization>.Instance.Language = Localization.ENGLISH;
+            }
+            else
+            {
+                Singleton<Localization>.Instance.Language = Localization.CHINESE;
+            }
+        }
     }
 }
 
