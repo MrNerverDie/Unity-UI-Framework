@@ -29,12 +29,12 @@ namespace MoleMole
 
         public override void OnPause(BaseContext context)
         {
-            _animator.SetTrigger("OnExit");
+            _animator.SetTrigger("OnPause");
         }
 
         public override void OnResume(BaseContext context)
         {
-            _animator.SetTrigger("OnEnter");
+            _animator.SetTrigger("OnResume");
         }
 
 	}

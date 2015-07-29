@@ -28,7 +28,7 @@ namespace MoleMole
         public override void OnEnter(BaseContext context)
         {
             base.OnEnter(context);
-            _gridScroller.Init(OnChange, 20, new Vector2(0.12f, 1f));
+            _gridScroller.Init(OnChange, 100, new Vector2(0.12f, 1f));
         }
 
         public override void OnExit(BaseContext context)

@@ -41,12 +41,12 @@ namespace MoleMole
 
         public override void OnPause(BaseContext context)
         {
-            base.OnPause(context);
+            _animator.SetTrigger("OnExit");
         }
 
         public override void OnResume(BaseContext context)
         {
-            base.OnResume(context);
+            _animator.SetTrigger("OnEnter");
         }
 
         public void OptionCallBack()

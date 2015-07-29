@@ -12,29 +12,27 @@ namespace MoleMole
         }
     }
 
-    public class OptionMenuView : BaseView
+    public class OptionMenuView : AnimateView
     {
-
-        public Animator _animator;
 
         public override void OnEnter(BaseContext context)
         {
-            _animator.SetTrigger("OnEnter");
+            base.OnEnter(context);
         }
 
         public override void OnExit(BaseContext context)
         {
-            _animator.SetTrigger("OnExit");
+            base.OnExit(context);
         }
 
         public override void OnPause(BaseContext context)
         {
-            _animator.SetTrigger("OnPause");
+            base.OnPause(context);
         }
 
         public override void OnResume(BaseContext context)
         {
-            _animator.SetTrigger("OnResume");
+            base.OnResume(context);
         }
 
 		public void BackCallBack()
