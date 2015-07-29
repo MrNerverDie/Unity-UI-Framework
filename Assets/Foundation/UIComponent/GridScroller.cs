@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 /*
  *	
- *  
+ *  Grid Scroller For High Performance
  *
  *	by Xuanyi
  *
@@ -14,6 +14,7 @@ using System.Collections.Generic;
 
 namespace MoleMole
 {
+    [AddComponentMenu("UI/Components/Gradient Color")]
     [RequireComponent(typeof(ScrollRect))]
 	public class GridScroller : MonoBehaviour {
 

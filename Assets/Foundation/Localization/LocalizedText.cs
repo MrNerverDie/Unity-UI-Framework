@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 /*
  *	
- *  
+ *  Localized Text For Text Component
  *
  *	by Xuanyi
  *

@@ -13,19 +13,19 @@ namespace MoleMole
         }
     }
 
-    public class NextMenuView : BaseView
+    public class NextMenuView : AnimateView
     {
 
         public Animator _animator;
 
         public override void OnEnter(BaseContext context)
         {
-            _animator.SetTrigger("OnEnter");
+            base.OnEnter(context);
         }
 
         public override void OnExit(BaseContext context)
         {
-            _animator.SetTrigger("OnExit");
+            base.OnExit(context);
         }
 
         public void BackCallBack()

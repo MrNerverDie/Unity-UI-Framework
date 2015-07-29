@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 /*
  *	
- *  
+ *  Base Animate View
  *
  *	by Xuanyi
  *

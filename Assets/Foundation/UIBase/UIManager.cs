@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 /*
  *	
- *  
+ *  Manage View's Create And Destory
  *
  *	by Xuanyi
  *

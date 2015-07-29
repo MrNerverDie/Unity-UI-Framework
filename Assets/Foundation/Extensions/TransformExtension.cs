@@ -14,17 +14,6 @@ namespace MoleMole
 {
 	public static class TransformExtension 
     {
-
-	    public static Transform GetFirstChild(this Transform trans)
-        {
-            return trans.GetChild(0);
-        }
-
-        public static Transform GetLastChild(this Transform trans)
-        {
-            return trans.GetChild(trans.childCount - 1);
-        }
-
         public static void DestroyChildren(this Transform trans)
         {
             foreach (Transform child in trans)

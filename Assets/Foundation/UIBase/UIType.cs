@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 /*
  *	
- *  
+ *  Define View's Path And Name
  *
  *	by Xuanyi
  *

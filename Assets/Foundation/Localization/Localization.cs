@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 /*
  *	
- *  
+ *  Manage TextMap And Query Of Text
  *
  *	by Xuanyi
  *

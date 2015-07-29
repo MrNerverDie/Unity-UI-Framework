@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 /*
  *	
- *  Maintain State For UI Stack
+ *  Manage Context For UI Stack
  *
  *	by Xuanyi
  *
