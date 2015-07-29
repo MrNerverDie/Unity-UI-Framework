@@ -1,6 +1,8 @@
 #Unity-UI-Framework的设计与实现
 
-在设计UI的基础架构的时候，最重要的是要保证其有足够的易编辑性，其次则是有着足够的性能。一下的各个模块的设计中也会着重在这两方面进行努力。
+###如何使用
+
+请直接导入UnityUIFramework这个UnityPackage，然后进入名为Test的Scene即可开始体验各种特性，Enjoy！
 
 ###View的创建和销毁
 
