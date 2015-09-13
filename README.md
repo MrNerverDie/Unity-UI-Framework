@@ -8,6 +8,8 @@
 
 请直接导入UnityUIFramework这个UnityPackage，然后进入名为Test的Scene即可开始体验各种特性，Enjoy！你可以通过访问[我的Github](https://github.com/MrNerverDie/Unity-UI-Framework)进行查阅和下载，也可以通过下面的附件直接下载。
 
+![MainMenu](http://images2015.cnblogs.com/blog/447331/201509/447331-20150913161748965-843856388.png)
+
 ###基本概念：View，Context和UI的定义
 
 UI是游戏中主要界面和它的子节点上的物体的统称，如装备列表界面中的**装备列表**和**每个装备**通常会被制作成两个Prefab，这两个Prefab被我们称作两个UI，这两个UI会对应两个UIType，在UIType里面会存储有这个UI全局唯一的名字和路径，如下：
