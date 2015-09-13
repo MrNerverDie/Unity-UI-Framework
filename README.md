@@ -43,7 +43,7 @@
 
 如果在界面上使用3D的旋转动画，就很难使用DoTween或者iTween在代码里面进行动画控制，而且为了保持游戏内和游戏外设计的一致性。因此建议使用Animator对View的各种动画进行控制，而View的动画一般又和View的跳转联系紧密，所以建议将两者进行绑定，一个一般的动画状态机如下图：
 
-![ViewAnimator](./ViewAnimator.png)
+![ViewAnimator](http://images.cnblogs.com/cnblogs_com/neverdie/688179/o_ViewAnimator_resizeSmall_width=1920.png)
 
 一个界面在没有显示的时候会处于Empty状态，当接收到OnEnter的Trigger的时候，会播放OnEnter动画，其他的状态如图所示，可以参考上图以及项目中的状态机。不同的界面可以使用相同的状态机，只是在某些状态上绑定的动画会有所不同。
 
@@ -56,7 +56,7 @@
 ###分辨率适配
 
 UGUI中的分辨率适配是通过CanvasScaler来实现的，如下图：
-![CanvasScaler](./Unnamed QQ Screenshot20150728200015.png)
+![CanvasScaler](http://www.cnblogs.com/neverdie/gallery/image/159854.html)
 
 在这里，我建议使用Scale With Width Or Height这种Scale模式，同时，由于我们是横屏游戏，我建议使用高度固定，宽度随之变化的模式，即为如图所示的设置方式。
 
