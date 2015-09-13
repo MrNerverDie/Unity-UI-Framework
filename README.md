@@ -56,7 +56,7 @@
 ###分辨率适配
 
 UGUI中的分辨率适配是通过CanvasScaler来实现的，如下图：
-![CanvasScaler](http://www.cnblogs.com/neverdie/gallery/image/159854.html)
+![CanvasScaler](http://images.cnblogs.com/cnblogs_com/neverdie/688179/o_-Unnamed%20QQ%20Screenshot20150728200015.png)
 
 在这里，我建议使用Scale With Width Or Height这种Scale模式，同时，由于我们是横屏游戏，我建议使用高度固定，宽度随之变化的模式，即为如图所示的设置方式。
 
