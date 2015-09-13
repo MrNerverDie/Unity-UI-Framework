@@ -14,7 +14,6 @@ using System.Collections.Generic;
 
 namespace MoleMole
 {
-    [AddComponentMenu("UI/Components/Gradient Color")]
     [RequireComponent(typeof(ScrollRect))]
 	public class GridScroller : MonoBehaviour {
 
@@ -22,7 +21,7 @@ namespace MoleMole
         [SerializeField]
         private Transform _itemPrefab;
         [SerializeField]
-        private RectTransform _grid;
+        private GridLayoutGroup _grid;
 
         // private UI elements //
         private ScrollRect _scroller;
@@ -158,11 +157,11 @@ namespace MoleMole
 
             if (_moveType == Movement.Horizontal)
             {
-                _grid.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ((_itemCount + 1) / _row) * ItemSize.x);
+                _grid.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ((_itemCount + 1) / _row) * ItemSize.x);
             }
             else
             {
-                _grid.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ((_itemCount + 1) / _col) * ItemSize.y);
+                _grid.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ((_itemCount + 1) / _col) * ItemSize.y);
             }
             _scroller.onValueChanged.AddListener(OnValueChanged);
             _scroller.normalizedPosition = (normalizedPosition.HasValue) ? normalizedPosition.Value : new Vector2(0, 1);
@@ -175,7 +174,7 @@ namespace MoleMole
             _showIndexSet.Clear();
             if (_grid != null)
             {
-                _grid.DestroyChildren();                
+                _grid.GetComponent<RectTransform>().DestroyChildren();
             }
         }
 
@@ -191,7 +190,7 @@ namespace MoleMole
             }
 
             Vector2 scrollerSize = _scroller.GetComponent<RectTransform>().rect.size;
-            Vector2 gridSize = _grid.rect.size;
+            Vector2 gridSize = _grid.GetComponent<RectTransform>().rect.size;
 
             int startIndex = 0;
             if (_moveType == Movement.Horizontal)
