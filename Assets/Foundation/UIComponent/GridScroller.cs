@@ -157,11 +157,11 @@ namespace MoleMole
 
             if (_moveType == Movement.Horizontal)
             {
-                _grid.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ((_itemCount + 1) / _row) * ItemSize.x);
+                _grid.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.CeilToInt((float)_itemCount / _row) * ItemSize.x);
             }
             else
             {
-                _grid.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ((_itemCount + 1) / _col) * ItemSize.y);
+                _grid.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.CeilToInt((float)_itemCount / _col) * ItemSize.y);
             }
             _scroller.onValueChanged.AddListener(OnValueChanged);
             _scroller.normalizedPosition = (normalizedPosition.HasValue) ? normalizedPosition.Value : new Vector2(0, 1);
